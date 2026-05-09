@@ -1,5 +1,5 @@
-from flask import Flask, render_template, jsonify
-from entities.usuarios import Usuarios
+from flask import Flask, render_template, jsonify, request
+from entities.categorias import Categorias
 
 app = Flask(__name__)
 
