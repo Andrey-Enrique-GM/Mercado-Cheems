@@ -2,9 +2,9 @@ import pymysql
 
 def get_connection():
     return pymysql.connect(
-        host="jdbc:mysql://34.30.245.236:3306/db_sistema_ventas",
+        host="34.30.245.236",
+        port=3306,
         user="000",
         password="000",
-        database="db_sistema_ventas",
-        port=3306
+        database="db_sistema_ventas"
     )

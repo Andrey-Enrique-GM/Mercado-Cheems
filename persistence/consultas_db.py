@@ -2,7 +2,25 @@ from mysql.connector import Error
 from persistence.db import get_connection
 
 
-# 1. METODO CON TRANSACCION
+
+# 1. METODO DE REGISTRO DE CLIENTE
+def registrar_cliente(nombre, email):
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        query = "INSERT INTO clientes (nombre, email) VALUES (%s, %s)"
+        cursor.execute(query, (nombre, email))
+        conn.commit()
+        return {"status": "success", "message": f"Cliente '{nombre}' registrado con ID {cursor.lastrowid}"}
+    except Error as e:
+        return {"status": "error", "message": f"Fallo al registrar cliente: {e.msg}"}
+    finally:
+        cursor.close()
+        conn.close()
+
+
+
+# 2. METODO CON TRANSACCION
 def realizar_venta(cliente_id, producto_id, cantidad, precio_unitario):
     """
     Este método cumple con START TRANSACTION, COMMIT y ROLLBACK.
@@ -43,35 +61,26 @@ def realizar_venta(cliente_id, producto_id, cantidad, precio_unitario):
         conn.close()
 
 
-# 2. CONSULTA AVANZADA (Requisito: JOIN, LIKE)
-def filtrar_clientes_por_nombre(nombre_buscar):
-    conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
-    # Ejemplo de LIKE
-    query = "SELECT * FROM clientes WHERE nombre LIKE %s"
-    cursor.execute(query, (f"%{nombre_buscar}%",))
-    resultados = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return resultados
-
 
 # 3. REPORTE CON VISTA (Requisito: VIEW)
-def obtener_vista_productos():
+def consultar_inventario():
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor()
     # Llamamos a una de las vistas creadas
     cursor.execute("SELECT * FROM vista_productos_calidad")
-    resultados = cursor.fetchall()
+    rows = cursor.fetchall()
+    column_names = [desc[0] for desc in cursor.description]
+    resultados = [dict(zip(column_names, row)) for row in rows]
     cursor.close()
     conn.close()
     return resultados
+
 
 
 # 4. REPORTE COMPLEJO (Requisito: GROUP BY, HAVING, ORDER BY)
 def reporte_ventas_por_cliente():
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor()
     query = """
         SELECT c.nombre, COUNT(o.id) as num_ordenes, SUM(o.total) as total_gastado
         FROM clientes c
@@ -81,7 +90,25 @@ def reporte_ventas_por_cliente():
         ORDER BY total_gastado DESC
     """
     cursor.execute(query)
-    resultados = cursor.fetchall()
+    rows = cursor.fetchall()
+    column_names = [desc[0] for desc in cursor.description]
+    resultados = [dict(zip(column_names, row)) for row in rows]
+    cursor.close()
+    conn.close()
+    return resultados
+
+
+
+# 5. CONSULTA AVANZADA (Requisito: JOIN, LIKE)
+def filtrar_clientes_por_nombre(nombre_buscar):
+    conn = get_connection()
+    cursor = conn.cursor()
+    # Ejemplo de LIKE
+    query = "SELECT * FROM clientes WHERE nombre LIKE %s"
+    cursor.execute(query, (f"%{nombre_buscar}%",))
+    rows = cursor.fetchall()
+    column_names = [desc[0] for desc in cursor.description]
+    resultados = [dict(zip(column_names, row)) for row in rows]
     cursor.close()
     conn.close()
     return resultados

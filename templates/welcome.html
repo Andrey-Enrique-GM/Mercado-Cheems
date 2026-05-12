@@ -76,8 +76,8 @@
                                         <span key="t-dashboards">Registrar</span>
                                     </a>
                                     <ul class="sub-menu" aria-expanded="false">
-                                        <li><a href="#" key="t-default">Registrar Cliente</a></li>
-                                        <li><a href="#" key="t-saas">Nueva venta</a></li>
+                                        <li><a href="javascript:void(0);" id="btn-registrar-cliente">Registrar Cliente</a></li>
+                                        <li><a href="javascript:void(0);" id="btn-nueva-venta">Nueva venta</a></li>
                                     </ul>
                                 </li>
 
@@ -88,9 +88,9 @@
                                         <span key="t-dashboards">Consultar</span>
                                     </a>
                                     <ul class="sub-menu" aria-expanded="false">
-                                        <li><a href="#" key="t-tui-calendar">Inventario</a></li>
-                                        <li><a href="#" key="t-full-calendar">Ventas</a></li>
-                                        <li><a href="#" key="t-full-calendar">Buscar Clientes</a></li>
+                                        <li><a href="javascript:void(0);" id="btn-inventario">Inventario</a></li>
+                                        <li><a href="javascript:void(0);" id="btn-reporte-ventas">Ventas</a></li>
+                                        <li><a href="javascript:void(0);" id="btn-buscar-cliente">Buscar Clientes</a></li>
                                     </ul>
                                 </li>
                                 <li>
@@ -105,7 +105,7 @@
                 <div class="main-content">
 
                     <div class="page-content">
-                        <div class="container-fluid">
+                        <div class="container-fluid" id="contenedor-principal">
 
                             <div class="row">
                                 <div class="col-12">
@@ -201,5 +201,6 @@
             <script src="{{ url_for('static', filename='libs/node-waves/waves.min.js') }} "></script>
 
             <script src="{{ url_for('static', filename='js/app.js') }} "></script>
+            <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
         </body>
 </html>
