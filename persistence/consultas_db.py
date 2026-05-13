@@ -62,17 +62,33 @@ def realizar_venta(cliente_id, producto_id, cantidad, precio_unitario):
 
 
 
-# 3. REPORTE CON VISTA (Requisito: VIEW)
+# 3. REPORTE CON VISTA
 def consultar_inventario():
+
     conn = get_connection()
     cursor = conn.cursor()
-    # Llamamos a una de las vistas creadas
-    cursor.execute("SELECT * FROM vista_productos_calidad")
+
+    # CAMBIA ESTO - Consulta directa sin necesidad de vista
+    cursor.execute("""
+        SELECT p.id, p.nombre, p.descripcion, p.precio, 
+               p.precio_oferta, p.stock, p.categoria_id,
+               c.nombre as categoria_nombre
+        FROM productos p
+        LEFT JOIN categorias c ON p.categoria_id = c.id
+    """)
+
     rows = cursor.fetchall()
+
     column_names = [desc[0] for desc in cursor.description]
-    resultados = [dict(zip(column_names, row)) for row in rows]
+
+    resultados = [
+        dict(zip(column_names, row))
+        for row in rows
+    ]
+
     cursor.close()
     conn.close()
+
     return resultados
 
 
