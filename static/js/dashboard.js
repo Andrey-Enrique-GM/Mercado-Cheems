@@ -114,6 +114,6 @@ function ejecutarVenta() {
 document.addEventListener('DOMContentLoaded', () => {
     // Ejemplo: Si tu botón de Consultar Opción 1 tiene id="btn-inventario"
     document.getElementById('btn-inventario')?.addEventListener('click', verInventario);
-    document.getElementById('btn-reporte')?.addEventListener('click', verReporteVentas);
+    document.getElementById('btn-reporte-ventas')?.addEventListener('click', verReporteVentas);
     document.getElementById('btn-nueva-venta')?.addEventListener('click', formNuevaVenta);
 });

@@ -120,7 +120,7 @@ def filtrar_clientes_por_nombre(nombre_buscar):
     conn = get_connection()
     cursor = conn.cursor()
     # Ejemplo de LIKE
-    query = "SELECT * FROM clientes WHERE nombre LIKE %s"
+    query = "SELECT nombre, numero_cuenta FROM clientes WHERE nombre LIKE %s"
     cursor.execute(query, (f"%{nombre_buscar}%",))
     rows = cursor.fetchall()
     column_names = [desc[0] for desc in cursor.description]
