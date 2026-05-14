@@ -1,10 +1,9 @@
 from flask import Flask, render_template, jsonify, request
 from persistence.consultas_db import (
-    registrar_cliente, 
-    realizar_venta, 
-    consultar_inventario, 
-    reporte_ventas_por_cliente,
-    filtrar_clientes_por_nombre
+    realizar_venta,
+    reporte_resumen_ventas,
+    consultar_inventario_completo,
+    buscar_cliente
 )
 
 
@@ -40,23 +39,23 @@ def api_login():
     return jsonify({'success': True})
 
 
-@app.route('/api/inventario')
-def api_inventario():
-    # Llama al Método 3: VIEW
-    datos = consultar_inventario()
+@app.route('/api/inventario-completo')
+def api_inventario_completo():
+    # Consulta de inventario completo con VIEW y subqueries
+    datos = consultar_inventario_completo()
     return jsonify(datos)
 
 
-@app.route('/api/reporte-ventas')
-def api_reporte_ventas():
-    # Llama al Método 4: GROUP BY/HAVING
-    datos = reporte_ventas_por_cliente()
+@app.route('/api/reporte-resumen-ventas')
+def api_reporte_resumen_ventas():
+    # Reporte complejo con JOIN, GROUP BY, HAVING y ORDER BY
+    datos = reporte_resumen_ventas()
     return jsonify(datos)
 
 
 @app.route('/api/realizar-venta', methods=['POST'])
 def api_realizar_venta():
-    # Llama al Método 2: TRANSACTION + TRIGGERS
+    # Operación con transacción y triggers
     data = request.json
     resultado = realizar_venta(
         cliente_id=data['cliente_id'],
@@ -67,19 +66,11 @@ def api_realizar_venta():
     return jsonify(resultado)
 
 
-@app.route('/api/registrar-cliente', methods=['POST'])
-def api_registrar_cliente():
-    # Llama al Método 1: INSERT simple
-    data = request.json
-    resultado = registrar_cliente(data['nombre'], data['email'])
-    return jsonify(resultado)
-
-
 @app.route('/api/buscar-cliente')
 def api_buscar_cliente():
-    # Llama al Método 5: JOIN + LIKE
-    nombre = request.args.get('nombre', '')
-    resultado = filtrar_clientes_por_nombre(nombre)
+    # Búsqueda avanzada con LIKE
+    termino = request.args.get('termino', '')
+    resultado = buscar_cliente(termino)
     return jsonify(resultado)
 
 

@@ -7,21 +7,45 @@ const contenedor = document.getElementById('contenedor-principal');
 
 
 
-// 1. FUNCIÓN PARA MOSTRAR EL REPORTE DE VENTAS (MÉTODO 4: GROUP BY/HAVING)
-function verReporteVentas() {
-    fetch('/api/reporte-ventas')
+// 1. FUNCIÓN PARA MOSTRAR INVENTARIO COMPLETO (VIEW + SUBQUERIES)
+function verInventarioCompleto() {
+    fetch('/api/inventario-completo')
         .then(res => res.json())
         .then(data => {
             let html = `
-                <h3>Ranking de Clientes Top</h3>
-                <p class="text-muted">Clientes con compras mayores a $0 (Uso de HAVING y GROUP BY)</p>
-                <table class="table table-dark table-striped">
+                <h3>Inventario Completo</h3>
+                <p class="text-muted">Vista completa con información de productos y veces vendido (Uso de VIEW y SUBQUERIES)</p>
+                <div class="table-responsive">
+                    <table class="table table-dark">
+                        <thead>
+                            <tr><th>ID</th><th>Producto</th><th>Precio</th><th>Stock</th><th>Categoría</th><th>Veces Vendido</th></tr>
+                        </thead>
+                        <tbody>`;
+            data.forEach(p => {
+                html += `<tr><td>${p.id}</td><td>${p.nombre}</td><td>$${p.precio}</td><td>${p.stock}</td><td>${p.categoria_nombre}</td><td>${p.veces_vendido}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            contenedor.innerHTML = html;
+        });
+}
+
+
+
+// 2. FUNCIÓN PARA MOSTRAR REPORTE DE RESUMEN DE VENTAS (JOIN + GROUP BY + HAVING)
+function verReporteResumenVentas() {
+    fetch('/api/reporte-resumen-ventas')
+        .then(res => res.json())
+        .then(data => {
+            let html = `
+                <h3>Resumen de Ventas</h3>
+                <p class="text-muted">Clientes con compras mayores a $100 (Uso de JOIN, GROUP BY, HAVING y ORDER BY)</p>
+                <table class="table table-dark">
                     <thead>
-                        <tr><th>Cliente</th><th># Ordenes</th><th>Total Gastado</th></tr>
+                        <tr><th>Cliente</th><th>Total Compras</th><th>Total Gastado</th></tr>
                     </thead>
                     <tbody>`;
             data.forEach(r => {
-                html += `<tr><td>${r.nombre}</td><td>${r.num_ordenes}</td><td>$${r.total_gastado}</td></tr>`;
+                html += `<tr><td>${r.nombre}</td><td>${r.total_compras}</td><td>$${r.total_gastado}</td></tr>`;
             });
             html += `</tbody></table>`;
             contenedor.innerHTML = html;
@@ -30,37 +54,11 @@ function verReporteVentas() {
 
 
 
-// 2. FUNCIÓN PARA CONSULTAR INVENTARIO (MÉTODO 3: VIEW)
-function verInventario() {
-    fetch('/api/inventario')
-        .then(res => res.json())
-        .then(data => {
-            let html = `
-                <h3>Inventario Actual</h3>
-                <p class="text-muted">Datos obtenidos desde la VISTA: vista_productos_calidad</p>
-                <div class="row">`;
-            data.forEach(p => {
-                html += `
-                    <div class="col-md-4 mb-3">
-                        <div class="card bg-secondary text-white">
-                            <div class="card-body">
-                                <h5>${p.nombre}</h5>
-                                <p>Precio: $${p.precio}<br>Stock: ${p.stock}</p>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            html += `</div>`;
-            contenedor.innerHTML = html;
-        });
-}
-
-
-
-// 3. FORMULARIO PARA REGISTRAR VENTA (MÉTODO 2: TRANSACCIÓN + TRIGGERS)
+// 3. FORMULARIO PARA REALIZAR VENTA (TRANSACCIÓN + TRIGGERS)
 function formNuevaVenta() {
     contenedor.innerHTML = `
         <h3>Generar Nueva Venta</h3>
+        <p class="text-muted">Formulario para registrar una nueva venta (Uso de TRANSACCIÓN y TRIGGERS)</p>
         <div class="card p-4 bg-dark">
             <div class="mb-3">
                 <label>ID Cliente:</label>
@@ -100,20 +98,56 @@ function ejecutarVenta() {
     .then(res => {
         if (res.status === "success") {
             alert("¡Éxito! " + res.message);
-            verInventario(); // Refrescar para ver el trigger en acción
+            verInventarioCompleto(); // Refrescar inventario
         } else {
-            alert("ERROR DE DB: " + res.message); // Aquí saldría el error del Trigger de stock
+            alert("ERROR: " + res.message);
         }
     });
 }
 
 
 
-// 4. ESCUCHADORES DE EVENTOS (Conecta con los IDs de tu menú)
-// Reemplaza 'id-de-tu-boton' con los IDs reales de tu welcome.html
+// 4. FORMULARIO PARA BUSCAR CLIENTE (LIKE)
+function formBuscarCliente() {
+    contenedor.innerHTML = `
+        <h3>Buscar Cliente</h3>
+        <p class="text-muted">Busca clientes por nombre (Uso de LIKE)</p>
+        <div class="card p-4 bg-dark">
+            <div class="mb-3">
+                <label>Término de búsqueda:</label>
+                <input type="text" id="busqueda_cliente" class="form-control" placeholder="Nombre del cliente">
+            </div>
+            <button onclick="buscarCliente()" class="btn btn-info">Buscar</button>
+            <div id="resultados-busqueda" class="mt-3"></div>
+        </div>
+    `;
+}
+
+function buscarCliente() {
+    const termino = document.getElementById('busqueda_cliente').value;
+    fetch(`/api/buscar-cliente?termino=${encodeURIComponent(termino)}`)
+        .then(res => res.json())
+        .then(data => {
+            let html = '<h5>Resultados:</h5>';
+            if (data.length === 0) {
+                html += '<p class="text-muted">No se encontraron clientes.</p>';
+            } else {
+                html += '<table class="table table-dark"><thead><tr><th>Nombre</th><th>Email</th></tr></thead><tbody>';
+                data.forEach(c => {
+                    html += `<tr><td>${c.nombre}</td><td>${c.email}</td></tr>`;
+                });
+                html += '</tbody></table>';
+            }
+            document.getElementById('resultados-busqueda').innerHTML = html;
+        });
+}
+
+
+
+// 5. ESCUCHADORES DE EVENTOS
 document.addEventListener('DOMContentLoaded', () => {
-    // Ejemplo: Si tu botón de Consultar Opción 1 tiene id="btn-inventario"
-    document.getElementById('btn-inventario')?.addEventListener('click', verInventario);
-    document.getElementById('btn-reporte-ventas')?.addEventListener('click', verReporteVentas);
+    document.getElementById('btn-inventario-completo')?.addEventListener('click', verInventarioCompleto);
+    document.getElementById('btn-reporte-resumen-ventas')?.addEventListener('click', verReporteResumenVentas);
     document.getElementById('btn-nueva-venta')?.addEventListener('click', formNuevaVenta);
+    document.getElementById('btn-buscar-cliente')?.addEventListener('click', formBuscarCliente);
 });
