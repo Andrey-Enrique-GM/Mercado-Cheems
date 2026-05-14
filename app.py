@@ -99,10 +99,17 @@ def api_buscar_cliente():
 
 @app.route('/api/clientes')
 def api_clientes():
-
     clientes = obtener_clientes()
+    return jsonify([
+        {"id": cliente[0], "nombre": cliente[1]} for cliente in clientes
+    ])
 
-    return jsonify(clientes)
+@app.route('/api/productos')
+def api_productos():
+    productos = obtener_productos()
+    return jsonify([
+        {"id": producto[0], "nombre": producto[1], "precio": float(producto[2])} for producto in productos
+    ])
 
 @app.route('/api/producto/<int:producto_id>')
 def api_producto(producto_id):

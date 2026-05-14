@@ -3,7 +3,7 @@
  * Conecta los botones del menú con los métodos de Python/MySQL
  */
 
-const contenedor = document.getElementById('contenedor-principal');
+const contenedor = document.getElementById('contenedor-principal') || document.querySelector('.main-content');
 
 
 
@@ -57,10 +57,14 @@ function verReporteResumenVentas() {
 // 3. FORMULARIO PARA REALIZAR VENTA (TRANSACCIÓN + TRIGGERS)
 async function formNuevaVenta() {
 
-    // Obtener clientes desde Flask
-    const response = await fetch('/api/clientes');
-    const clientes = await response.json();
-    // Crear options del select
+    const [clientesResponse, productosResponse] = await Promise.all([
+        fetch('/api/clientes'),
+        fetch('/api/productos')
+    ]);
+
+    const clientes = await clientesResponse.json();
+    const productos = await productosResponse.json();
+
     let optionsClientes = '';
     clientes.forEach(cliente => {
         optionsClientes += `
@@ -69,6 +73,16 @@ async function formNuevaVenta() {
             </option>
         `;
     });
+
+    let optionsProductos = '';
+    productos.forEach(producto => {
+        optionsProductos += `
+            <option value="${producto.id}" data-precio="${producto.precio}">
+                ${producto.nombre}
+            </option>
+        `;
+    });
+
     contenedor.innerHTML = `
         <h3>Generar Nueva Venta</h3>
         <p class="text-muted">
@@ -82,12 +96,10 @@ async function formNuevaVenta() {
                 </select>
             </div>
             <div class="mb-3">
-                <label>ID Producto:</label>
-                <input
-                    type="number"
-                    id="v_producto"
-                    class="form-control"
-                >
+                <label>Producto:</label>
+                <select id="v_producto" class="form-control">
+                    ${optionsProductos}
+                </select>
             </div>
             <div class="mb-3">
                 <label>Cantidad:</label>
@@ -130,24 +142,23 @@ async function formNuevaVenta() {
     const cantidadInput = document.getElementById('v_cantidad');
     const precioInput = document.getElementById('v_precio');
     const totalInput = document.getElementById('v_total');
-    // Buscar producto automáticamente
-    productoInput.addEventListener('change', async () => {
-        const productoId = productoInput.value;
-        if(productoId === '') return;
-        const response = await fetch(`/api/producto/${productoId}`);
-        if(response.ok){
-            const producto = await response.json();
-            precioInput.value = producto.precio;
-            calcularTotal();
-        }
-    });
-    // Calcular total
+
+    function actualizarPrecio() {
+        const selectedOption = productoInput.options[productoInput.selectedIndex];
+        const precio = parseFloat(selectedOption?.dataset.precio) || 0;
+        precioInput.value = precio;
+        calcularTotal();
+    }
+
     function calcularTotal(){
         const precio = parseFloat(precioInput.value) || 0;
         const cantidad = parseInt(cantidadInput.value) || 0;
-        totalInput.value = precio * cantidad;
+        totalInput.value = (precio * cantidad).toFixed(2);
     }
+
+    productoInput.addEventListener('change', actualizarPrecio);
     cantidadInput.addEventListener('input', calcularTotal);
+    actualizarPrecio();
 }
 
 function ejecutarVenta() {

@@ -105,8 +105,8 @@
 
                 
                 <div class="main-content">
-
-                                            <div class="card-venta">
+                    <div id="contenedor-principal">
+                        <div class="card-venta">
 
                                 <h3 class="text-white mb-4">
                                     Generar Nueva Venta
@@ -222,6 +222,7 @@
                                 </form>
 
                             </div>
+                        </div>
     
                     <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -237,7 +238,8 @@
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
                             </div>
-
+                        </div>
+                    </div>
 
 
                                 <!-- Modal de Registro de Información -->
@@ -271,7 +273,7 @@
 
 
                         </div>
-                    </div> 
+                    </div>
                     <footer class="footer">
                         <div class="container-fluid">
                             <div class="row">
@@ -337,12 +339,13 @@
 
                 function actualizarPrecio(){
 
-                    const precioProducto =
+                    const precioProducto = parseFloat(
                         $('#producto')
                         .find(':selected')
-                        .data('precio');
+                        .attr('data-precio')
+                    ) || 0;
 
-                    $('#precio').val(precioProducto || 0);
+                    $('#precio').val(precioProducto);
 
                     calcularTotal();
                 }

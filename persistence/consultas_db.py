@@ -94,68 +94,60 @@ def buscar_cliente(termino):
     conn.close()
     return res
 
+
+
+# ====================================================================================================
+
+
+
 # 5. OBTENER PRODUCTO POR ID
 def obtener_producto_por_id(producto_id):
-
     conn = get_connection()
     cursor = conn.cursor()
-
     query = """
         SELECT id, nombre, precio
         FROM productos
         WHERE id = %s
     """
-
     cursor.execute(query, (producto_id,))
-
     row = cursor.fetchone()
-
     cursor.close()
     conn.close()
-
     if row:
         return {
             "id": row[0],
             "nombre": row[1],
             "precio": float(row[2])
         }
-
     return None
+
+
 
 # 6. OBTENER CLIENTES
 def obtener_clientes():
-
     conn = get_connection()
     cursor = conn.cursor()
-
     query = """
         SELECT id, nombre
         FROM clientes
     """
-
     cursor.execute(query)
-
     clientes = cursor.fetchall()
-
     conn.close()
-
     return clientes
 
-def obtener_productos():
 
+
+# 7. OBTENER PRODUCTOS
+def obtener_productos():
     conn = get_connection()
     cursor = conn.cursor()
-
     sql = """
         SELECT id, nombre, precio
         FROM productos
     """
-
     cursor.execute(sql)
-
     productos = cursor.fetchall()
-
     cursor.close()
     conn.close()
-
     return productos
