@@ -1,10 +1,5 @@
-from flask import Flask, render_template, jsonify, request
-from persistence.consultas_db import (
-    realizar_venta,
-    reporte_resumen_ventas,
-    consultar_inventario_completo,
-    buscar_cliente
-)
+from flask import Flask, redirect, render_template, jsonify, request
+from persistence.consultas_db import *
 
 
 app = Flask(__name__)
@@ -28,11 +23,40 @@ def login():
 
 @app.route('/welcome')
 def welcome():
-    return render_template('welcome.html')
-
+    clientes = obtener_clientes()
+    productos = obtener_productos()
+    return render_template(
+        'welcome.html',
+        clientes=clientes,
+        productos=productos
+    )
 
 
 # --- RUTAS DE API ---
+@app.route('/registrar_venta', methods=['POST'])
+def registrar_venta():
+
+    cliente_id = request.form['id_cliente']
+    producto_id = request.form['id_producto']
+    cantidad = request.form['cantidad']
+    precio = request.form['precio']
+
+    resultado = realizar_venta(
+        cliente_id,
+        producto_id,
+        int(cantidad),
+        float(precio)
+    )
+
+    clientes = obtener_clientes()
+    productos = obtener_productos()
+
+    return render_template(
+        'welcome.html',
+        clientes=clientes,
+        productos=productos,
+        resultado=resultado
+    )
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
@@ -73,7 +97,20 @@ def api_buscar_cliente():
     resultado = buscar_cliente(termino)
     return jsonify(resultado)
 
+@app.route('/api/clientes')
+def api_clientes():
 
+    clientes = obtener_clientes()
+
+    return jsonify(clientes)
+
+@app.route('/api/producto/<int:producto_id>')
+def api_producto(producto_id):
+    producto = obtener_producto_por_id(producto_id)
+    if producto:
+        return jsonify(producto)
+    return jsonify({
+        "error": "Producto no encontrado"}), 404
 
 if __name__ == '__main__':
     app.run()

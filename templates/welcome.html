@@ -11,6 +11,9 @@
         <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
             <link href="{{ url_for('static', filename='css/icons.min.css') }}" rel="stylesheet" type="text/css" />
             <link href="{{ url_for('static', filename='css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+            
+            <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"
+/>
             <script src="{{ url_for('static', filename='js/plugin.js') }}"></script>
         </head>
 
@@ -103,25 +106,122 @@
                 
                 <div class="main-content">
 
-                    <div class="page-content">
-                        <div class="container-fluid" id="contenedor-principal">
+                                            <div class="card-venta">
 
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                                        <h4 class="mb-sm-0 font-size-18">Bienvenido</h4>
+                                <h3 class="text-white mb-4">
+                                    Generar Nueva Venta
+                                </h3>
 
-                                        <div class="page-title-right">
-                                            <ol class="breadcrumb m-0">
-                                                <li class="breadcrumb-item"><a href="javascript: void(0);">Inicio</a></li>
-                                                <li class="breadcrumb-item active">Bienvenido</li>
-                                            </ol>
-                                        </div>
+                                <form method="POST" action="/registrar_venta">
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label text-light">
+                                            Cliente
+                                        </label>
+
+                                       <select
+                                            id="cliente"
+                                            name="id_cliente"
+                                            class="form-select custom-input"
+                                        >
+
+                                            {% for cliente in clientes %}
+
+                                                <option value="{{ cliente[0] }}">
+                                                    {{ cliente[1] }}
+                                                </option>
+
+                                            {% endfor %}
+
+                                        </select>
+                                    
                                     </div>
-                                </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label text-light">
+                                            Producto
+                                        </label>
+
+                                        <select
+                                            id="producto"
+                                            name="id_producto"
+                                            class="form-select custom-input"
+                                        >
+
+                                            {% for producto in productos %}
+
+                                                <option
+                                                    value="{{ producto[0] }}"
+                                                    data-precio="{{ producto[2] }}"
+                                                >
+                                                    {{ producto[1] }}
+                                                </option>
+
+                                            {% endfor %}
+
+                                        </select>
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label text-light">
+                                            Cantidad
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            id="cantidad"
+                                            name="cantidad"
+                                            class="form-control custom-input"
+                                            value="1"
+                                        >
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label text-light">
+                                            Precio Unitario
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            id="precio"
+                                            name="precio"
+                                            class="form-control custom-input"
+                                            readonly
+                                        >
+
+                                    </div>
+
+                                    <div class="mb-3">
+
+                                        <label class="form-label text-light">
+                                            Total
+                                        </label>
+
+                                        <input
+                                            type="number"
+                                            id="total"
+                                            class="form-control custom-input"
+                                            readonly
+                                        >
+
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        class="btn-venta"
+                                    >
+                                        Finalizar Compra
+                                    </button>
+
+                                </form>
+
                             </div>
-                        </div>  
-                    </div>
     
                     <div class="modal fade transaction-detailModal" tabindex="-1" role="dialog" aria-labelledby="transaction-detailModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered" role="document">
@@ -180,7 +280,7 @@
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="text-sm-end d-none d-sm-block">
-                                        Desarrollado por Andrey
+                                        Desarrollado por Andrey y los chilos
                                     </div>
                                 </div>
                             </div>
@@ -201,5 +301,65 @@
 
             <script src="{{ url_for('static', filename='js/app.js') }} "></script>
             <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+        
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+            
+             <script>
+
+                $(document).ready(function(){
+
+                    $('#cliente').select2({
+                        placeholder: "Selecciona un cliente",
+                        width: '100%'
+                    });
+
+                    $('#producto').select2({
+                        placeholder: "Selecciona un producto",
+                        width: '100%'
+                    });
+
+                    actualizarPrecio();
+
+                    $('#producto').change(function(){
+
+                        actualizarPrecio();
+
+                    });
+
+                    $('#cantidad').on('input', function(){
+
+                        calcularTotal();
+
+                    });
+
+                });
+
+                function actualizarPrecio(){
+
+                    const precioProducto =
+                        $('#producto')
+                        .find(':selected')
+                        .data('precio');
+
+                    $('#precio').val(precioProducto || 0);
+
+                    calcularTotal();
+                }
+
+                function calcularTotal(){
+
+                    const precio =
+                        parseFloat($('#precio').val()) || 0;
+
+                    const cantidad =
+                        parseInt($('#cantidad').val()) || 0;
+
+                    $('#total').val(
+                        (precio * cantidad).toFixed(2)
+                    );
+                }
+
+            </script>
         </body>
 </html>

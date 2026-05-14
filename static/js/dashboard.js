@@ -55,30 +55,99 @@ function verReporteResumenVentas() {
 
 
 // 3. FORMULARIO PARA REALIZAR VENTA (TRANSACCIÓN + TRIGGERS)
-function formNuevaVenta() {
+async function formNuevaVenta() {
+
+    // Obtener clientes desde Flask
+    const response = await fetch('/api/clientes');
+    const clientes = await response.json();
+    // Crear options del select
+    let optionsClientes = '';
+    clientes.forEach(cliente => {
+        optionsClientes += `
+            <option value="${cliente.id}">
+                ${cliente.nombre}
+            </option>
+        `;
+    });
     contenedor.innerHTML = `
         <h3>Generar Nueva Venta</h3>
-        <p class="text-muted">Formulario para registrar una nueva venta (Uso de TRANSACCIÓN y TRIGGERS)</p>
+        <p class="text-muted">
+            Formulario para registrar una nueva venta
+        </p>
         <div class="card p-4 bg-dark">
             <div class="mb-3">
-                <label>ID Cliente:</label>
-                <input type="number" id="v_cliente" class="form-control" value="1">
+                <label>Cliente:</label>
+                <select id="v_cliente" class="form-control">
+                    ${optionsClientes}
+                </select>
             </div>
             <div class="mb-3">
                 <label>ID Producto:</label>
-                <input type="number" id="v_producto" class="form-control" value="1">
+                <input
+                    type="number"
+                    id="v_producto"
+                    class="form-control"
+                >
             </div>
             <div class="mb-3">
                 <label>Cantidad:</label>
-                <input type="number" id="v_cantidad" class="form-control" value="1">
+                <input
+                    type="number"
+                    id="v_cantidad"
+                    class="form-control"
+                    value="1"
+                >
             </div>
             <div class="mb-3">
                 <label>Precio Unitario:</label>
-                <input type="number" id="v_precio" class="form-control" value="20">
+                <input
+                    type="number"
+                    id="v_precio"
+                    class="form-control"
+                    readonly
+                >
             </div>
-            <button onclick="ejecutarVenta()" class="btn btn-warning">Finalizar Compra</button>
+            <div class="mb-3">
+                <label>Total:</label>
+                <input
+                    type="number"
+                    id="v_total"
+                    class="form-control"
+                    readonly
+                >
+            </div>
+            <button
+                onclick="ejecutarVenta()"
+                class="btn btn-warning"
+            >
+                Finalizar Compra
+            </button>
         </div>
     `;
+
+    // Inputs
+    const productoInput = document.getElementById('v_producto');
+    const cantidadInput = document.getElementById('v_cantidad');
+    const precioInput = document.getElementById('v_precio');
+    const totalInput = document.getElementById('v_total');
+    // Buscar producto automáticamente
+    productoInput.addEventListener('change', async () => {
+        const productoId = productoInput.value;
+        if(productoId === '') return;
+        const response = await fetch(`/api/producto/${productoId}`);
+        if(response.ok){
+            const producto = await response.json();
+            precioInput.value = producto.precio;
+            calcularTotal();
+        }
+    });
+    // Calcular total
+    function calcularTotal(){
+        const precio = parseFloat(precioInput.value) || 0;
+        const cantidad = parseInt(cantidadInput.value) || 0;
+        totalInput.value = precio * cantidad;
+    }
+    cantidadInput.addEventListener('input', calcularTotal);
 }
 
 function ejecutarVenta() {

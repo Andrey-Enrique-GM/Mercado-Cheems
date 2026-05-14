@@ -4741,4 +4741,124 @@ table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before {
 .jobs-categories a:hover {
   color: #556ee6;
 }
- 
+
+
+.card-venta{
+    background: #2f3640;
+    padding: 35px;
+    border-radius: 20px;
+    width: 700px;
+    margin: 90px 40px auto;
+    box-shadow: 0px 10px 30px rgba(0,0,0,.3);
+}
+
+.card-venta h3{
+
+    color: white;
+
+    font-weight: bold;
+
+    margin-bottom: 25px;
+}
+
+.form-label{
+
+    color: #dcdde1;
+
+    font-weight: 600;
+
+    margin-bottom: 8px;
+}
+
+.custom-input{
+
+    border-radius: 12px !important;
+
+    padding: 12px !important;
+
+    border: none !important;
+
+    background: #f5f6fa !important;
+
+    transition: 0.3s;
+
+    min-height: 45px;
+}
+
+.custom-input:focus{
+
+    background: white !important;
+
+    box-shadow: 0px 0px 10px rgba(255,193,7,0.6) !important;
+
+    outline: none !important;
+}
+
+.btn-venta{
+
+    width: 100%;
+
+    border: none;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    font-weight: bold;
+
+    color: white;
+
+    margin-top: 10px;
+
+    background: linear-gradient(
+        90deg,
+        #f7971e,
+        #ffd200
+    );
+
+    transition: 0.3s;
+}
+
+.btn-venta:hover{
+
+    transform: scale(1.01);
+
+    opacity: 0.95;
+}
+
+.select2-container--default
+.select2-selection--single{
+
+    border: none !important;
+
+    border-radius: 12px !important;
+
+    height: 45px !important;
+
+    padding-top: 6px;
+
+    background: #f5f6fa !important;
+}
+
+.select2-container--default
+.select2-selection--single
+.select2-selection__arrow{
+
+    height: 45px !important;
+}
+
+.select2-dropdown{
+
+    border-radius: 12px !important;
+
+    border: none !important;
+
+    overflow: hidden;
+}
+
+.select2-search__field{
+
+    border-radius: 10px !important;
+
+    padding: 8px !important;
+}
